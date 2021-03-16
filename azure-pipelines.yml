@@ -94,6 +94,8 @@ stages:
       runOnce:
         deploy:
           steps:
+          - download: current
+            artifact: drop
           - task: ManualValidation@0
             timeoutInMinutes: 1440 # task times out in 1 day
             inputs:
@@ -101,8 +103,6 @@ stages:
                 muy@amristar.com
               instructions: 'Please validate the build configuration and resume'
               onTimeout: 'reject'
-          - download: current
-            artifact: drop
           - task: AzureWebApp@1
             displayName: 'Azure App Service Deploy: website'
             inputs:
