@@ -77,11 +77,7 @@ stages:
   displayName: 'Manual Validation - DEV'
   dependsOn: Build
   condition: |
-    and
-    (
-      succeeded(),
-      eq(variables['Build.SourceBranchName'], variables['releaseBranchName'])
-    )
+      succeeded()
   jobs:  
   - job: waitForValidation
     displayName: Wait for external validation  
@@ -100,11 +96,7 @@ stages:
   displayName: 'Deploy to the dev application'
   dependsOn: ManualValidationDEV
   condition: |
-    and
-    (
-      succeeded(),
-      eq(variables['Build.SourceBranchName'], variables['releaseBranchName'])
-    )
+      succeeded()
   jobs:
   - deployment: Deploy
     displayName: 'Deploy to DEV'
