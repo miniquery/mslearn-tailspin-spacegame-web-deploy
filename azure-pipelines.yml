@@ -73,7 +73,7 @@ stages:
 
     - publish: '$(Build.ArtifactStagingDirectory)'
       artifact: drop
-- stage: 'Manual Validation - DEV'
+- stage: 'ManualValidationDEV'
   displayName: 'Manual Validation - DEV'
   dependsOn: Build
   condition: |
