@@ -73,7 +73,25 @@ stages:
 
     - publish: '$(Build.ArtifactStagingDirectory)'
       artifact: drop
-
+- stage: 'Manual Validation - DEV'
+  displayName: 'Manual Validation - DEV'
+  dependsOn: Build
+  condition: |
+      succeeded()
+  jobs:  
+  - job: waitForValidation
+    displayName: Wait for external validation  
+    pool: server    
+    timeoutInMinutes: 4320 # job times out in 3 days
+    steps:   
+    - task: ManualValidation@0
+      timeoutInMinutes: 1440 # task times out in 1 day
+      inputs:
+        notifyUsers: |
+          test@test.com
+          example@example.com
+        instructions: 'Please validate the build configuration and resume'
+        onTimeout: 'resume'
 - stage: 'Dev'
   displayName: 'Deploy to the dev application'
   dependsOn: Build
@@ -85,6 +103,7 @@ stages:
     )
   jobs:
   - deployment: Deploy
+    displayName: 'Deploy to DEV'
     pool:
       vmImage: 'ubuntu-18.04'
     environment: dev
@@ -96,13 +115,6 @@ stages:
           steps:
           - download: current
             artifact: drop
-          - task: ManualValidation@0
-            timeoutInMinutes: 1440 # task times out in 1 day
-            inputs:
-              notifyUsers: |
-                muy@amristar.com
-              instructions: 'Please validate the build configuration and resume'
-              onTimeout: 'reject'
           - task: AzureWebApp@1
             displayName: 'Azure App Service Deploy: website'
             inputs:
@@ -115,6 +127,7 @@ stages:
   #condition: eq(variables['Build.Reason'], 'Schedule')
   jobs:
   - deployment: Deploy
+    displayName: 'Deploy to Test'
     pool:
       vmImage: 'ubuntu-18.04'
     environment: test
@@ -126,13 +139,6 @@ stages:
           steps:
           - download: current
             artifact: drop
-          - task: ManualValidation@0
-            timeoutInMinutes: 1440 # task times out in 1 day
-            inputs:
-              notifyUsers: |
-                muy@amristar.com
-              instructions: 'Please validate the build configuration and resume'
-              onTimeout: 'reject'
           - task: AzureWebApp@1
             displayName: 'Azure App Service Deploy: website'
             inputs:
@@ -145,6 +151,7 @@ stages:
   dependsOn: Test
   jobs:
   - deployment: Deploy
+    displayName: 'Deploy to Staging'
     pool:
       vmImage: 'ubuntu-18.04'
     environment: staging
@@ -156,13 +163,6 @@ stages:
           steps:
           - download: current
             artifact: drop
-          - task: ManualValidation@0
-            timeoutInMinutes: 1440 # task times out in 1 day
-            inputs:
-              notifyUsers: |
-                muy@amristar.com
-              instructions: 'Please validate the build configuration and resume'
-              onTimeout: 'reject'
           - task: AzureWebApp@1
             displayName: 'Azure App Service Deploy: website'
             inputs:
